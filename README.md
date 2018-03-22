@@ -1,6 +1,10 @@
 # EtherCard
 Ethereum based smart-contract for creating unpersonified cards with monetary value in ETH claimable by third party that is given special key by card's creator.
 
+## What is it for
+Mainly, to create a gift card with some amount of ether for somebody you don't want to ask for their address beforehand or you would like to surprise (by giving a physical or digital card at some exact moment).
+It could be also used by a party that wants to reward someone who is still not known.
+
 ## How it works
 EtherCard Contract works in conjuction with EtherCard Client (https://github.com/shamsfk/EtherCardClient) that is available at https://ether-card.com.
 
