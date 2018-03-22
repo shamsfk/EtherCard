@@ -8,8 +8,8 @@ contract EtherCard {
     // Address to trasfer fee to
     address public feeAddress;
     
-    // This number represents a fee rate in percents / 100,000
-    uint public constant FEE_RATE = 35323; // 0.35323%
+    // This number represents a fee rate in percents / 1,000,000
+    uint public constant FEE_RATE = 353236; // 0.353236%
     
     enum CardStatus {
         Waiting,
@@ -48,21 +48,37 @@ contract EtherCard {
         feeAddress = _feeAddress;
     }
     
-    function changeFeeAddress(address _newFeeAdress) public {
+    /// @notice Changes address to transfer fee to
+    /// @param _newFeeAddress New address
+    /// @author Bulat Shamsutdinov (shamsfk)
+    function changeFeeAddress(address _newFeeAddress) public {
         // Only manager can change Fee Address
         require(msg.sender == manager);
-        feeAddress = _newFeeAdress;
+        feeAddress = _newFeeAddress;
     }
 
-    function createCard(uint _value, string _claimKey, string _retrivalKey) public payable {
-        // Check if value and fee are fair
-        require((_value * 10 / 100) * FEE_RATE == msg.value - _value);
+    /// @notice Create a card and trnsfer it's value and fee to the Contract to hold
+    /// @param _value What amount of ether will reciever of a card get 
+    /// @param _fee A fee to the contract's creator shoud be _value * 0.353236% + 1 wei
+    /// @param _claimKey Public ClaimKey that will be used to check the validity of a private one
+    /// @param _retrivalKey Public RetrivalKey that will be used to check the validity of a private one
+    /// @author Bulat Shamsutdinov (shamsfk)
+    function createCard(uint _value, uint _fee, string _claimKey, string _retrivalKey) public payable {
+        // Check if fee is fair
+        require(_value + _fee >= msg.value);
+        require((_value * 10000) * FEE_RATE <= _fee);
         
-        Card memory newCard = Card(msg.sender, _value, (msg.value-_value), _claimKey, _retrivalKey, CardStatus.Waiting, 0);
-        
+        // Create and store new card
+        Card memory newCard = Card(msg.sender, _value, _fee, _claimKey, _retrivalKey, CardStatus.Waiting, 0);
         cards.push(newCard);
     }
+
+    // TODO: move require(_cardNumber < cards.length) to modifier
     
+    /// @notice Cancel card and retrieve both it's value and fee
+    /// (only card's creator can cancel).
+    /// @param _cardNumber Number of a card to cancel
+    /// @author Bulat Shamsutdinov (shamsfk)
     function cancelCard(uint _cardNumber) public {
         // Card number must be valid
         require(_cardNumber < cards.length);
@@ -74,7 +90,12 @@ contract EtherCard {
         cards[_cardNumber].status = CardStatus.Chancelled;
     }
     
-    function claimCard(uint _cardNumber, uint _controlKey) public {
+    /// @notice Claim the Card using ClaimKey effectively locking
+    /// it to msg.sender address (the only address able to retrieve)
+    /// @param _cardNumber Number of a card to claim
+    /// @param _claimKey Private Key to prove the right to claim
+    /// @author Bulat Shamsutdinov (shamsfk)
+    function claimCard(uint _cardNumber, uint _claimKey) public {
         // Card number must be valid
         require(_cardNumber < cards.length);
         
@@ -82,18 +103,22 @@ contract EtherCard {
         require(cards[_cardNumber].status == CardStatus.Waiting);
         
         // TODO: Check if _controlKey is valid
-        require(_controlKey == 0);
+        require(_claimKey == 0);
         
         cards[_cardNumber].claimerAddress = msg.sender;
         cards[_cardNumber].status = CardStatus.Claimed;
     }
 
+    /// @notice Checks if msg.sender has successfully claimed the Card
+    /// @param _cardNumber Number of a card to check
+    /// @return Returns true if msg.sender claimed the card and false otherwise
+    /// @author Bulat Shamsutdinov (shamsfk)
     function isCardClaimedByMe(uint _cardNumber) public view returns(bool) {
         return (cards[_cardNumber].claimerAddress == msg.sender);
     }
     
-    /// @notice Send card's value to msg.sender's address
-    /// accessable only by the address that previosly claimed the card.
+    /// @notice Retrieve card's funds using RetrivalKey
+    /// (only address that claimed card can retrieve it's funds)
     /// @param _cardNumber Number of a card to retrieve
     /// @param _retrivalKey Private Key to prove the right to retrieve
     /// @dev client app should check if card is controlled by the retriever
@@ -110,9 +135,13 @@ contract EtherCard {
         // TODO: Check if _retrivalKey is valid
         require(_retrivalKey == 0);
         
-        // TODO: transfer value to customer
-        // TODO: transfer fee to manager
+        // Transfer value to claimerAddress
+        cards[_cardNumber].claimerAddress.transfer(cards[_cardNumber].value);
+
+        // Transfer fee to feeAddress
+        feeAddress.transfer(cards[_cardNumber].fee);
         
+        // Close card by changing status to Retrieved 
         cards[_cardNumber].status = CardStatus.Retrieved;
     }
 }
