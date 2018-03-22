@@ -51,11 +51,13 @@ describe('EtherCard Contract', () => {
     it('allows card creation', async () => {
         var value = web3.utils.toWei('1.0', 'ether');
         var fee = web3.utils.toWei('0.1', 'ether');
+        var claimKey = "0x1";
+        var retrivalKey = "0x2";
 
-        await ethercard.methods.createCard(value, fee, "0x0", "0x0").send({
+        await ethercard.methods.createCard(value, fee, claimKey, retrivalKey).send({
             from: accounts[0],
             value: web3.utils.toWei('1.1', 'ether'),
-            gas: 1000000
+            gas: '1000000'
         });
 
         const card = await ethercard.methods.cards(0).call({
@@ -66,5 +68,7 @@ describe('EtherCard Contract', () => {
         assert.equal(accounts[0], card.creatorAddress);
         assert.equal(value, card.value);
         assert.equal(fee, card.fee);
+        assert.equal('1', card.publicClaimKey);
+        assert.equal('2', card.publicRetrivalKey);
     });
 });
