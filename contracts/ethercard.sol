@@ -29,10 +29,10 @@ contract EtherCard {
         uint fee;
 
         // Key to check the validity of a Claim Key
-        string publicClaimKey;
+        uint publicClaimKey;
 
         // Key to check the validity of a Retrival Key
-        string publicRetrivalKey;
+        uint publicRetrivalKey;
         
         // Defines status of a current Card
         CardStatus status;
@@ -63,7 +63,7 @@ contract EtherCard {
     /// @param _claimKey Public ClaimKey that will be used to check the validity of a private one
     /// @param _retrivalKey Public RetrivalKey that will be used to check the validity of a private one
     /// @author Bulat Shamsutdinov (shamsfk)
-    function createCard(uint _value, uint _fee, string _claimKey, string _retrivalKey) public payable {
+    function createCard(uint _value, uint _fee, uint _claimKey, uint _retrivalKey) public payable {
         // Check if fee is fair
         require(_value + _fee <= msg.value);
         require(_value * FEE_RATE / 10000 <= _fee);

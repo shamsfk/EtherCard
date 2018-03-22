@@ -23,7 +23,7 @@ describe('EtherCard Contract', () => {
         assert.ok(ethercard.options.address);
     });
 
-    it('allows a manager to change fee address', async () => {
+    it('allows manager to change fee address', async () => {
         await ethercard.methods.changeFeeAddress(accounts[1]).send({
           from: accounts[0],
         });
