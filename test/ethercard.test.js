@@ -20,4 +20,29 @@ describe('EtherCard Contract', () => {
     it('deploys a contract', () => {
         assert.ok(ethercard.options.address);
     });
+
+    it('allows a manager to change fee address', async () => {
+        await ethercard.methods.changeFeeAddress(accounts[1]).send({
+          from: accounts[0],
+        });
+
+        const feeAddress = await ethercard.methods.feeAddress().call({
+            from: accounts[0]
+        });
+
+        assert.equal(accounts[1], feeAddress);
+    });
+
+    it('forbids not a manager to change fee address', async () => {
+        var error;
+        try {
+            await ethercard.methods.changeFeeAddress(accounts[2]).send({
+                from: accounts[1],
+            });
+        }
+        catch(err) {
+            error = err;
+        }
+        assert.ok(error);
+    });
 });
