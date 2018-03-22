@@ -41,6 +41,9 @@ describe('EtherCard Contract', () => {
             await ethercard.methods.changeFeeAddress(accounts[2]).send({
                 from: accounts[1],
             });
+            await ethercard.methods.changeFeeAddress(accounts[0]).send({
+                from: accounts[1],
+            });
         }
         catch(err) {
             error = err;
