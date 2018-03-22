@@ -8,8 +8,8 @@ contract EtherCard {
     // Address to trasfer fee to
     address public feeAddress;
     
-    // This number represents a fee rate in percents / 10
-    uint public constant FEE_RATE = 5; // 0.5%
+    // This number represents a fee rate in percents / 100,000
+    uint public constant FEE_RATE = 35323; // 0.35323%
     
     enum CardStatus {
         Waiting,
