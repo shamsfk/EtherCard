@@ -2,7 +2,7 @@ pragma solidity ^0.4.18;
 
 contract EtherCard {
     
-    // Address of manager who can set feeAddress
+    // Address of a manager who can set feeAddress
     address public manager;
     
     // Address to trasfer fee to
@@ -63,7 +63,7 @@ contract EtherCard {
         cards.push(newCard);
     }
     
-    function cancelCard(uint _cardNumber) public payable {
+    function cancelCard(uint _cardNumber) public {
         // Card number must be valid
         require(_cardNumber < cards.length);
         
@@ -74,7 +74,7 @@ contract EtherCard {
         cards[_cardNumber].status = CardStatus.Chancelled;
     }
     
-    function claimCard(uint _cardNumber, uint _controlKey) public payable {
+    function claimCard(uint _cardNumber, uint _controlKey) public {
         // Card number must be valid
         require(_cardNumber < cards.length);
         
@@ -87,13 +87,19 @@ contract EtherCard {
         cards[_cardNumber].claimerAddress = msg.sender;
         cards[_cardNumber].status = CardStatus.Claimed;
     }
+
+    function isCardClaimedByMe(uint _cardNumber) public view returns(bool) {
+        return (cards[_cardNumber].claimerAddress == msg.sender);
+    }
     
-    /// @dev s
-    /// @param _cardNumber s
-    /// @param _retrivalKey s
-    /// @notice client app should check if card is controlled by the retriever
-    ///         using checkOwnership() before sending Retrival Key into the wild
-    function retrieveCard(uint _cardNumber, uint _retrivalKey) public payable {
+    /// @notice Send card's value to msg.sender's address
+    /// accessable only by the address that previosly claimed the card.
+    /// @param _cardNumber Number of a card to retrieve
+    /// @param _retrivalKey Private Key to prove the right to retrieve
+    /// @dev client app should check if card is controlled by the retriever
+    /// using checkOwnership() before sending Retrival Key into the wild
+    /// @author Bulat Shamsutdinov (shamsfk)
+    function retrieveCard(uint _cardNumber, uint _retrivalKey) public {
         // Card number must be valid
         require(_cardNumber < cards.length);
         
