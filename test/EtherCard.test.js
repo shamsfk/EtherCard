@@ -23,8 +23,8 @@ const sendValue = '1.1';
 var createTestCard = async () => {
     var value = web3.utils.toWei('1.0', 'ether');
     var fee = web3.utils.toWei('0.1', 'ether');
-    var claimKey = web3.utils.sha3(web3.utils.toHex("1") + accounts[0], {encoding:"hex"});
-    var retrivalKey = web3.utils.sha3(web3.utils.toHex("2") + accounts[0], {encoding:"hex"});
+    var claimKey = web3.utils.sha3(web3.utils.toHex("10") + accounts[0], {encoding:"hex"});
+    var retrivalKey = web3.utils.sha3(web3.utils.toHex("200") + accounts[0], {encoding:"hex"});
 
     await ethercard.methods.createCard(value, fee, claimKey, retrivalKey).send({
         from: accounts[0],
@@ -119,8 +119,8 @@ describe('EtherCard Contract', () => {
         assert.ok(error);
     });
 
-    it('sends value and fee back when card is canceled', async () => {
-        var {value, fee} = await createTestCard();
+    it('sends funds back when card is canceled', async () => {
+        await createTestCard();
 
         var accountBalanceBefore = await web3.eth.getBalance(accounts[0]);
 
@@ -128,11 +128,13 @@ describe('EtherCard Contract', () => {
             from: accounts[0]
         });
 
+        // contract should have no ether
         var contractBalance = await web3.eth.getBalance(ethercard.options.address);
         assert.equal(contractBalance, 0);
 
         var accountBalanceAfter = await web3.eth.getBalance(accounts[0]);
 
+        // creator's balance after cancelation must be bigger than before
         assert.ok(accountBalanceAfter > accountBalanceBefore);
     });
 });
