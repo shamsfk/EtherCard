@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 pragma solidity ^0.4.21;
+=======
+pragma solidity ^0.4.18;
+>>>>>>> 14e81112c939122bb0d27aca866a8ac4a87a0c0a
 
 contract EtherCard {
     
