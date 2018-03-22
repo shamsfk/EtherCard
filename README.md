@@ -30,3 +30,8 @@ _Why Claiming Key (and claiming step) is needed? - Claiming key is a defense aga
 
 ## What is a fee
 A Fee is the amount of ether that is transfered to the Contract's creator (me) when Card is recieved. It calculates beforehand and is added to the transaction at the time of Card's creation. A Fee Rate is **0.353236%** of a Card's Value.
+
+## Developer notes
+* To run tests a minimum required c++ compiler version is 4.8
+    * https://github.com/trufflesuite/ganache-cli/issues/134
+    * on Ubuntu use https://gist.github.com/omnus/6404505

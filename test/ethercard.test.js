@@ -18,6 +18,21 @@ beforeEach(async () => {
     .send({ from: accounts[0], gas: '1000000' });
 });
 
+var createTestCard = async () => {
+    var value = web3.utils.toWei('1.0', 'ether');
+    var fee = web3.utils.toWei('0.1', 'ether');
+    var claimKey = web3.utils.sha3(web3.utils.toHex("1") + accounts[0], {encoding:"hex"});
+    var retrivalKey = web3.utils.sha3(web3.utils.toHex("2") + accounts[0], {encoding:"hex"});
+
+    await ethercard.methods.createCard(value, fee, claimKey, retrivalKey).send({
+        from: accounts[0],
+        value: web3.utils.toWei('1.1', 'ether'),
+        gas: '1000000'
+    });
+
+    return {value, fee, claimKey, retrivalKey};
+}
+
 describe('EtherCard Contract', () => {
     it('deploys a contract', () => {
         assert.ok(ethercard.options.address);
@@ -52,16 +67,7 @@ describe('EtherCard Contract', () => {
     });
 
     it('allows card creation', async () => {
-        var value = web3.utils.toWei('1.0', 'ether');
-        var fee = web3.utils.toWei('0.1', 'ether');
-        var claimKey = web3.utils.sha3(web3.utils.toHex("1") + accounts[0], {encoding:"hex"});
-        var retrivalKey = web3.utils.sha3(web3.utils.toHex("2") + accounts[0], {encoding:"hex"});
-
-        await ethercard.methods.createCard(value, fee, claimKey, retrivalKey).send({
-            from: accounts[0],
-            value: web3.utils.toWei('1.1', 'ether'),
-            gas: '1000000'
-        });
+        var {value, fee, claimKey, retrivalKey} = await createTestCard();
 
         const card = await ethercard.methods.cards(0).call({
             from: accounts[0]
@@ -73,5 +79,34 @@ describe('EtherCard Contract', () => {
         assert.equal(fee, card.fee);
         assert.equal(web3.utils.toHex(claimKey), web3.utils.toHex(card.publicClaimKey));
         assert.equal(web3.utils.toHex(retrivalKey), web3.utils.toHex(card.publicRetrivalKey));
+    });
+
+    it('allows creator to cancel card', async () => {
+        await createTestCard();
+
+        await ethercard.methods.cancelCard(0).send({
+            from: accounts[0]
+        });
+
+        var card = await ethercard.methods.cards(0).call({
+            from: accounts[0]
+        });
+
+        assert.equal(card.status, 3);
+    });
+
+    it('forbids not a creator to cancel card', async () => {
+        var error;
+        try {
+            await createTestCard();
+
+            await ethercard.methods.cancelCard(0).send({
+                from: accounts[1]
+            });
+        }
+        catch(err) {
+            error = err;
+        }
+        assert.ok(error);
     });
 });
