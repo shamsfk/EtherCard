@@ -51,8 +51,8 @@ describe('EtherCard Contract', () => {
     it('allows card creation', async () => {
         var value = web3.utils.toWei('1.0', 'ether');
         var fee = web3.utils.toWei('0.1', 'ether');
-        var claimKey = "0x1";
-        var retrivalKey = "0x2";
+        var claimKey = web3.utils.sha3(web3.utils.toHex("1") + accounts[0], {encoding:"hex"});
+        var retrivalKey = web3.utils.sha3(web3.utils.toHex("2") + accounts[0], {encoding:"hex"});
 
         await ethercard.methods.createCard(value, fee, claimKey, retrivalKey).send({
             from: accounts[0],
@@ -68,7 +68,7 @@ describe('EtherCard Contract', () => {
         assert.equal(accounts[0], card.creatorAddress);
         assert.equal(value, card.value);
         assert.equal(fee, card.fee);
-        assert.equal('1', card.publicClaimKey);
-        assert.equal('2', card.publicRetrivalKey);
+        assert.equal(web3.utils.toHex(claimKey), web3.utils.toHex(card.publicClaimKey));
+        assert.equal(web3.utils.toHex(retrivalKey), web3.utils.toHex(card.publicRetrivalKey));
     });
 });
