@@ -9,7 +9,7 @@ _Prepaid accounts can be and are used for the same purpose, the only value of Et
 ## How it works
 EtherCard Contract works in conjuction with EtherCard Client (https://github.com/shamsfk/EtherCardClient) that is available at https://ether-card.com.
 
-* Card's Creator specifies an amount of ether that will be attributed to the Card (Card's Value) and a text message (Card's Text)
+* Card's Creator specifies an amount of ether that will be attributed to the Card (Card's Value) and a text message (Card's Text) that will be presented to the Card's Reciever
 * Client generates a pair of random keys (private):
     * Claiming Key
     * Retrival Key
