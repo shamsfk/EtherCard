@@ -1,3 +1,5 @@
+require('events').EventEmitter.prototype._maxListeners = 100;
+
 const assert = require('assert');
 const ganache = require('ganache-cli');
 const Web3 = require('web3');
