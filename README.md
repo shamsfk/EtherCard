@@ -10,15 +10,15 @@ _Prepaid accounts can be and are used for the same purpose, the only value of Et
 EtherCard Contract works in conjunction with EtherCard Client (https://github.com/shamsfk/EtherCardClient).
 
 1. Card's Creator specifies an amount of ether that will be attributed to the Card (Card's Value) and a special text message (Card's Text)
-2. Using random.org Client generates a pair of random keys (private):
+2. Using random.org, Creator's address, current time and SHA256 algorythm Client generates a pair of private keys:
     * Claiming Key
     * Retrieval Key
-3. Using Claiming Key and Retrieval Key (+ Value + Creator's Address) Client generates a new pair of keys (public):
+3. Using Claiming Key, Retrieval Key, Value, Creator's address and SHA256 algorythm Client generates a pair of public keys:
     * Public Claiming Key
     * Public Retrieval Key
 4. An amount, FeeAmount*, PublicClaimingKey, PublicRetrievalKey, Card's Text and Creator's Address forms the Card
 5. The card is sent to the Contract, Contract stores the card and emits an event with Card's Number
-6. Creator gives Card's Number, Claiming Key and Retrieval key to a third party (the Reciever) (This information is resented to the Creator in a formated text with a link to ether-card.com (Client) with Number and Claiming Key pre-entered)
+6. Creator gives Card's Number, Claiming Key and Retrieval key to a third party (the Reciever) (This information is presented to the Creator in a formated text with a link to ether-card.com with Number and Claiming Key pre-entered)
 7. Reciever follows a recieved link or enters Card's Number and Claiming Key manually on the Client and sends it to the Contract
 8. Contract checks if Claiming Key is valid and locks the Card to Receiver's address (no one else can retrieve funds from it from now on) (* except for the Creator who can chancel the Card and get his funds including Fee back anytime before it was received)
 9. Reciever checks that Card was indeed claimed to his address, enters a Retrieval Key and sends it to the contract
