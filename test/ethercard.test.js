@@ -47,4 +47,24 @@ describe('EtherCard Contract', () => {
         }
         assert.ok(error);
     });
+
+    it('allows card creation', async () => {
+        var value = web3.utils.toWei('1.0', 'ether');
+        var fee = web3.utils.toWei('0.1', 'ether');
+
+        await ethercard.methods.createCard(value, fee, "0x0", "0x0").send({
+            from: accounts[0],
+            value: web3.utils.toWei('1.1', 'ether'),
+            gas: 1000000
+        });
+
+        const card = await ethercard.methods.cards(0).call({
+            from: accounts[0]
+        });
+
+        assert.ok(card);
+        assert.equal(accounts[0], card.creatorAddress);
+        assert.equal(value, card.value);
+        assert.equal(fee, card.fee);
+    });
 });

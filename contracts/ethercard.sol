@@ -66,7 +66,7 @@ contract EtherCard {
     function createCard(uint _value, uint _fee, uint _claimKey, uint _retrivalKey) public payable {
         // Check if fee is fair
         require(_value + _fee <= msg.value);
-        require(_value * FEE_RATE / 10000 <= _fee);
+        require(_value * FEE_RATE / 100000000 <= _fee);
         
         // Create and store new card
         Card memory newCard = Card(msg.sender, _value, _fee, _claimKey, _retrivalKey, CardStatus.Waiting, 0);
