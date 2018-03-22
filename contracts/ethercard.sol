@@ -57,7 +57,7 @@ contract EtherCard {
         feeAddress = _newFeeAddress;
     }
 
-    /// @notice Create a card and trnsfer it's value and fee to the Contract to hold
+    /// @notice Create a card and transfer it's value and fee to the Contract to hold
     /// @param _value What amount of ether will reciever of a card get 
     /// @param _fee A fee to the contract's creator shoud be _value * 0.353236% + 1 wei
     /// @param _claimKey Public ClaimKey that will be used to check the validity of a private one
@@ -65,8 +65,8 @@ contract EtherCard {
     /// @author Bulat Shamsutdinov (shamsfk)
     function createCard(uint _value, uint _fee, string _claimKey, string _retrivalKey) public payable {
         // Check if fee is fair
-        require(_value + _fee >= msg.value);
-        require((_value * 10000) * FEE_RATE <= _fee);
+        require(_value + _fee <= msg.value);
+        require(_value * FEE_RATE / 10000 <= _fee);
         
         // Create and store new card
         Card memory newCard = Card(msg.sender, _value, _fee, _claimKey, _retrivalKey, CardStatus.Waiting, 0);
