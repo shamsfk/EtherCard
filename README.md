@@ -1,5 +1,5 @@
 # EtherCard
-Ethereum based smart-contract for creating unpersonified cards with monetary value in ETH claimable by third party that is given special key by card's creator.
+Ethereum contract to create and share unpersonified gift cards available at https://ether-card.com
 
 ## What is it for
 The main purpose of EtherCard is to create a gift card with some amount of ether to be given to somebody you don't want to ask for their address beforehand or you would like to surprise by presenting a card at some exact moment.
@@ -7,7 +7,7 @@ The main purpose of EtherCard is to create a gift card with some amount of ether
 _Prepaid accounts can be and are used for the same purpose, the only value of EtherCard is in the retrival process itself and a specific purpose of it which symbolises a gift._
 
 ## How it works
-EtherCard Contract works in conjuction with EtherCard Client (https://github.com/shamsfk/EtherCardClient) that is available at https://ether-card.com.
+EtherCard Contract works in conjuction with EtherCard Client (https://github.com/shamsfk/EtherCardClient).
 
 1. Card's Creator specifies an amount of ether that will be attributed to the Card (Card's Value) and a special text message (Card's Text)
 2. Using random.org Client generates a pair of random keys (private):
