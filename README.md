@@ -16,7 +16,7 @@ EtherCard Contract works in conjuction with EtherCard Client (https://github.com
 3. Using Claiming Key and Retrival Key (+ Value + Creator's Address) Client generates a new pair of keys (public):
     * Public Claiming Key
     * Public Retrival Key
-4. Amount, Fee Amount (_0.353236% * Amount_), Public Claiming Key, Public Retrival Key, Card's Text and Creator's Address forms the Card
+4. Amount, FeeAmount*, PublicClaimingKey, PublicRetrivalKey, Card's Text and Creator's Address forms the Card
 5. Card is sent to the Contract, Contract stores the card and emits event with Card's Number
 6. Creator gives Card's Number, Claiming Key and Retrival key to a third party (Reciever)
 7. Reciever enters Card's Number and Claiming Key on the Client and sends it to the Contract
@@ -28,8 +28,7 @@ EtherCard Contract works in conjuction with EtherCard Client (https://github.com
 
 _Why Claiming Key (and claiming step) is needed? - Claiming key is a defense against malicious nodes that theoretically could fish for a Card's key in order to steal it's funds. If a whole chain of actions listed above is executed in a proper order, maximum damage a fisher could do is to lock (claim) a Card to himself with no ability to actually retrieve it's funds as he has no Retrieval Key. Reciver could notify Card's Creator to cancel the Card and create a new one. This way it makes no sense (except for vandalic reasons) for anyone to tamper with retrival process._
 
-## What is a fee
-A Fee is the amount of ether that is transfered to the Contract's creator (me) when Card is recieved. It calculates beforehand and is added to the transaction at the time of Card's creation. A Fee Rate is **0.353236%** of a Card's Value.
+*A Fee is the amount of ether that is transfered to the Contract's creator (me) when Card is recieved. It calculates beforehand and is added to the transaction at the time of Card's creation. A Fee Rate is **0.353236%** of a Card's Value.
 
 ## Developer notes
 * To run tests a minimum required c++ compiler version is 4.8
