@@ -13,7 +13,7 @@ contract EtherCard {
     
     enum CardStatus {
         Waiting,
-        Controlled,
+        Claimed,
         Retrieved,
         Chancelled
     }
@@ -27,12 +27,18 @@ contract EtherCard {
         
         // How much fee in wei card holds
         uint fee;
+
+        // Key to check the validity of a Claim Key
+        string publicClaimKey;
+
+        // Key to check the validity of a Retrival Key
+        string publicRetrivalKey;
         
         // Defines status of a current Card
         CardStatus status;
         
-        // Address of an account who entered Control Key
-        address controlKeyAddress;
+        // Address of an account who entered Claim Key
+        address claimerAddress;
     }
     
     Card[] public cards;
@@ -48,17 +54,11 @@ contract EtherCard {
         feeAddress = _newFeeAdress;
     }
 
-    function makeCard(uint _value) public payable {
+    function createCard(uint _value, string _claimKey, string _retrivalKey) public payable {
         // Check if value and fee are fair
         require((_value * 10 / 100) * FEE_RATE == msg.value - _value);
         
-        Card memory newCard = Card({
-            creatorAddress:msg.sender, 
-            value:_value, 
-            fee:(msg.value-_value), 
-            status:CardStatus.Waiting,
-            controlKeyAddress:0
-        });
+        Card memory newCard = Card(msg.sender, _value, (msg.value-_value), _claimKey, _retrivalKey, CardStatus.Waiting, 0);
         
         cards.push(newCard);
     }
@@ -66,48 +66,47 @@ contract EtherCard {
     function cancelCard(uint _cardNumber) public payable {
         // Card number must be valid
         require(_cardNumber < cards.length);
-        Card storage card = cards[_cardNumber];
         
-        require(msg.sender == card.creatorAddress);
+        require(msg.sender == cards[_cardNumber].creatorAddress);
         
         // TODO: return all the money to card's creator (including fee)
         
-        card.status = CardStatus.Chancelled;
+        cards[_cardNumber].status = CardStatus.Chancelled;
     }
     
-    function controlCard(uint _cardNumber, uint _controlKey) public payable {
+    function claimCard(uint _cardNumber, uint _controlKey) public payable {
         // Card number must be valid
         require(_cardNumber < cards.length);
-        Card storage card = cards[_cardNumber];
         
         // Card mast be in th waiting state
-        require(card.status == CardStatus.Waiting);
+        require(cards[_cardNumber].status == CardStatus.Waiting);
         
         // TODO: Check if _controlKey is valid
+        require(_controlKey == 0);
         
-        card.controlKeyAddress = msg.sender;
-        card.status = CardStatus.Controlled;
+        cards[_cardNumber].claimerAddress = msg.sender;
+        cards[_cardNumber].status = CardStatus.Claimed;
     }
     
-    /// @dev
-    /// @param
-    /// @param
+    /// @dev s
+    /// @param _cardNumber s
+    /// @param _retrivalKey s
     /// @notice client app should check if card is controlled by the retriever
     ///         using checkOwnership() before sending Retrival Key into the wild
     function retrieveCard(uint _cardNumber, uint _retrivalKey) public payable {
         // Card number must be valid
         require(_cardNumber < cards.length);
-        Card storage card = cards[_cardNumber];
         
         // Card mast be controlled by the same person who tries to retrieve it
-        require(card.status == CardStatus.Controlled);
-        require(msg.sender == card.controlKeyAddress);
+        require(cards[_cardNumber].status == CardStatus.Claimed);
+        require(msg.sender == cards[_cardNumber].claimerAddress);
         
         // TODO: Check if _retrivalKey is valid
+        require(_retrivalKey == 0);
         
         // TODO: transfer value to customer
         // TODO: transfer fee to manager
         
-        card.status = CardStatus.Retrieved;
+        cards[_cardNumber].status = CardStatus.Retrieved;
     }
 }

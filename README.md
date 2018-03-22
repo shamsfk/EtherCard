@@ -16,7 +16,7 @@ EtherCard Contract works in conjuction with EtherCard Client (https://github.com
 * Using Claiming Key and Retrival Key (+ Value + Creator's Address) Client generates a new pair of keys (public):
     * Public Claiming Key
     * Public Retrival Key
-* Amount, Fee Amount (_0.35323%_), Public Claiming Key, Public Retrival Key, Card's Text and Creator's Address forms the Card
+* Amount, Fee Amount (_0.35323% * Amount_), Public Claiming Key, Public Retrival Key, Card's Text and Creator's Address forms the Card
 * Card is sent to the Contract, Contract stores the card and emits event with Card's Number
 * Creator gives Card's Number, Claiming Key and Retrival key to a third party (Reciever)
 * Reciever enters Card's Number and Claiming Key on the Client and sends it to the Contract
