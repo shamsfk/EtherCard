@@ -83,7 +83,7 @@ describe('EtherCard Contract', () => {
         assert.equal(web3.utils.toHex(retrivalKey), web3.utils.toHex(card.publicRetrivalKey));
     });
 
-    it('transfers value and fee to the contract on card creation', async () => {
+    it('transfers value to the contract on card creation', async () => {
         var {value, fee} = await createTestCard();
 
         contractBalance = await web3.eth.getBalance(ethercard.options.address);
@@ -122,14 +122,17 @@ describe('EtherCard Contract', () => {
     it('sends value and fee back when card is canceled', async () => {
         var {value, fee} = await createTestCard();
 
-        var contractBalance = await web3.eth.getBalance(ethercard.options.address);
-        assert.notEqual(contractBalance, 0);
+        var accountBalanceBefore = await web3.eth.getBalance(accounts[0]);
 
         await ethercard.methods.cancelCard(0).send({
             from: accounts[0]
         });
 
-        contractBalance = await web3.eth.getBalance(ethercard.options.address);
+        var contractBalance = await web3.eth.getBalance(ethercard.options.address);
         assert.equal(contractBalance, 0);
+
+        var accountBalanceAfter = await web3.eth.getBalance(accounts[0]);
+
+        assert.ok(accountBalanceAfter > accountBalanceBefore);
     });
 });
