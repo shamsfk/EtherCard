@@ -16,15 +16,15 @@ contract EtherCard is EtherCardBase {
     /// @param _value What amount of ether will reciever of a card get 
     /// @param _fee A fee to the contract's creator shoud be _value * 0.353236% + 1 wei
     /// @param _claimKey Public ClaimKey that will be used to check the validity of a private one
-    /// @param _retrivalKey Public RetrivalKey that will be used to check the validity of a private one
+    /// @param _retrievalKey Public RetrievalKey that will be used to check the validity of a private one
     /// @author Bulat Shamsutdinov (shamsfk)
-    function createCard(uint _value, uint _fee, uint _claimKey, uint _retrivalKey) public payable {
+    function createCard(uint _value, uint _fee, uint _claimKey, uint _retrievalKey) public payable {
         // Check if fee is fair
         require(_value + _fee <= msg.value);
         require(_value * FEE_RATE / 100000000 <= _fee);
         
         // Create and store new card
-        Card memory newCard = Card(msg.sender, _value, _fee, _claimKey, _retrivalKey, CardStatus.Waiting, 0);
+        Card memory newCard = Card(msg.sender, _value, _fee, _claimKey, _retrievalKey, CardStatus.Waiting, 0);
         cards.push(newCard);
     }
 
@@ -76,11 +76,11 @@ contract EtherCard is EtherCardBase {
     /// @notice Retrieve card's funds using RetrivalKey
     /// (only address that claimed card can retrieve it's funds)
     /// @param _cardNumber Number of a card to retrieve
-    /// @param _retrivalKey Private Key to prove the right to retrieve
+    /// @param _retrievalKey Private Key to prove the right to retrieve
     /// @dev client app should check if card is controlled by the retriever
     /// using checkOwnership() before sending Retrival Key into the wild
     /// @author Bulat Shamsutdinov (shamsfk)
-    function retrieveCard(uint _cardNumber, uint _retrivalKey) public {
+    function retrieveCard(uint _cardNumber, uint _retrievalKey) public {
         // Card number must be valid
         require(_cardNumber < cards.length);
         
@@ -88,8 +88,8 @@ contract EtherCard is EtherCardBase {
         require(cards[_cardNumber].status == CardStatus.Claimed);
         require(msg.sender == cards[_cardNumber].claimerAddress);
         
-        // TODO: Check if _retrivalKey is valid
-        require(_retrivalKey == 0);
+        // TODO: Check if _retrievalKey is valid
+        require(_retrievalKey == 0);
         
         // Transfer value to claimerAddress
         cards[_cardNumber].claimerAddress.transfer(cards[_cardNumber].value);
