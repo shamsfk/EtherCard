@@ -86,6 +86,7 @@ contract EtherCard {
         require(msg.sender == cards[_cardNumber].creatorAddress);
         
         // TODO: return all the money to card's creator (including fee)
+        cards[_cardNumber].claimerAddress.transfer(cards[_cardNumber].value + cards[_cardNumber].fee);
         
         cards[_cardNumber].status = CardStatus.Chancelled;
     }

@@ -34,4 +34,4 @@ A Fee is the amount of ether that is transfered to the Contract's creator (me) w
 ## Developer notes
 * To run tests a minimum required c++ compiler version is 4.8
     * https://github.com/trufflesuite/ganache-cli/issues/134
-    * on Ubuntu use https://gist.github.com/omnus/6404505
+    * To solve an error (on Ubuntu) use https://gist.github.com/omnus/6404505 before installing dependenties

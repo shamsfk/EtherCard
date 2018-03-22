@@ -18,6 +18,8 @@ beforeEach(async () => {
     .send({ from: accounts[0], gas: '1000000' });
 });
 
+const sendValue = '1.1';
+
 var createTestCard = async () => {
     var value = web3.utils.toWei('1.0', 'ether');
     var fee = web3.utils.toWei('0.1', 'ether');
@@ -26,7 +28,7 @@ var createTestCard = async () => {
 
     await ethercard.methods.createCard(value, fee, claimKey, retrivalKey).send({
         from: accounts[0],
-        value: web3.utils.toWei('1.1', 'ether'),
+        value: web3.utils.toWei(sendValue, 'ether'),
         gas: '1000000'
     });
 
@@ -81,6 +83,13 @@ describe('EtherCard Contract', () => {
         assert.equal(web3.utils.toHex(retrivalKey), web3.utils.toHex(card.publicRetrivalKey));
     });
 
+    it('transfers value and fee to the contract on card creation', async () => {
+        var {value, fee} = await createTestCard();
+
+        contractBalance = await web3.eth.getBalance(ethercard.options.address);
+        assert.equal(contractBalance, web3.utils.toWei(sendValue, 'ether'));
+    });
+
     it('allows creator to cancel card', async () => {
         await createTestCard();
 
@@ -108,5 +117,19 @@ describe('EtherCard Contract', () => {
             error = err;
         }
         assert.ok(error);
+    });
+
+    it('sends value and fee back when card is canceled', async () => {
+        var {value, fee} = await createTestCard();
+
+        var contractBalance = await web3.eth.getBalance(ethercard.options.address);
+        assert.notEqual(contractBalance, 0);
+
+        await ethercard.methods.cancelCard(0).send({
+            from: accounts[0]
+        });
+
+        contractBalance = await web3.eth.getBalance(ethercard.options.address);
+        assert.equal(contractBalance, 0);
     });
 });
