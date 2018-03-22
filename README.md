@@ -16,12 +16,12 @@ EtherCard Contract works in conjunction with EtherCard Client (https://github.co
 3. Using Claiming Key and Retrieval Key (+ Value + Creator's Address) Client generates a new pair of keys (public):
     * Public Claiming Key
     * Public Retrieval Key
-4. An amount, FeeAmount*, PublicClaimingKey, PublicRetrivalKey, Card's Text and Creator's Address forms the Card
+4. An amount, FeeAmount*, PublicClaimingKey, PublicRetrievalKey, Card's Text and Creator's Address forms the Card
 5. The card is sent to the Contract, Contract stores the card and emits an event with Card's Number
-6. Creator gives Card's Number, Claiming Key and Retrieval key to a third party (Reciever)
-7. Reciever enters Card's Number and Claiming Key on the Client and sends it to the Contract
-8. Contract checks if Claiming Key is valid and locks the Card to Receiver's address (no one else can retrieve funds from it from now on) (* except the Creator who can chancel the Card and get his funds including Fee back anytime before it was received)
-9. Reciever checks that Card was indeed claimed to his address and enters a Retrieval Key that is sent to the contract
+6. Creator gives Card's Number, Claiming Key and Retrieval key to a third party (the Reciever) (This information is resented to the Creator in a formated text with a link to ether-card.com (Client) with Number and Claiming Key pre-entered)
+7. Reciever follows a recieved link or enters Card's Number and Claiming Key manually on the Client and sends it to the Contract
+8. Contract checks if Claiming Key is valid and locks the Card to Receiver's address (no one else can retrieve funds from it from now on) (* except for the Creator who can chancel the Card and get his funds including Fee back anytime before it was received)
+9. Reciever checks that Card was indeed claimed to his address, enters a Retrieval Key and sends it to the contract
 10. Contract checks if Retrieval Key is valid and transfers Card's Value to the Reciever and Card's Fee to the special address specified by Contract's Manager
 11. Card's text is presented to the Reciever
 12. Card is closed
