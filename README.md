@@ -2,7 +2,7 @@
 Ethereum based smart-contract for creating unpersonified cards with monetary value in ETH claimable by third party that is given special key by card's creator.
 
 ## How it works
-EtherCard Contract works in conjuction with EtherCard Client (https://github.com/shamsfk/EtherCardClient) that is available at ether-card.com.
+EtherCard Contract works in conjuction with EtherCard Client (https://github.com/shamsfk/EtherCardClient) that is available at https://ether-card.com.
 
 * Card's Creator specifies an amount of ether that will be attributed to the Card (Card's Value)
 * Client generates a pair of random keys:
@@ -20,4 +20,4 @@ EtherCard Contract works in conjuction with EtherCard Client (https://github.com
 * Contract checks if Retrival Key is valid and transfers Card's Value to the Reciever and Card's Fee to the special address specified by Contract's Manager
 * Card is closed
 
-Why Claiming Key is needed? - Claiming key is a defense against malicious nodes that could fish for a Card's key in order to steal it's funds. If whole chain of actions is executed in a proper order, maximum damage a fisher could do is to lock a Card to himself with no ability to claim it's funds. Reciver could notify Card's Creator for him to cancel the Card and create a new one. That way it makes no sense (except for vandalic reasons) for anyone to tamper with retrival process.
+_Why Claiming Key is needed? - Claiming key is a defense against malicious nodes that could fish for a Card's key in order to steal it's funds. If whole chain of actions is executed in a proper order, maximum damage a fisher could do is to lock a Card to himself with no ability to claim it's funds. Reciver could notify Card's Creator for him to cancel the Card and create a new one. That way it makes no sense (except for vandalic reasons) for anyone to tamper with retrival process._
