@@ -6,9 +6,7 @@ contract EtherCard is EtherCardBase {
     /// @notice Changes address to transfer fee to
     /// @param _newFeeAddress New address
     /// @author Bulat Shamsutdinov (shamsfk)
-    function changeFeeAddress(address _newFeeAddress) public {
-        // Only manager can change Fee Address
-        require(msg.sender == manager);
+    function changeFeeAddress(address _newFeeAddress) external onlyManager {
         feeAddress = _newFeeAddress;
     }
 
@@ -18,7 +16,7 @@ contract EtherCard is EtherCardBase {
     /// @param _claimKey Public ClaimKey that will be used to check the validity of a private one
     /// @param _retrievalKey Public RetrievalKey that will be used to check the validity of a private one
     /// @author Bulat Shamsutdinov (shamsfk)
-    function createCard(uint _value, uint _fee, uint _claimKey, uint _retrievalKey) public payable {
+    function createCard(uint _value, uint _fee, uint _claimKey, uint _retrievalKey) external payable {
         // Check if fee is fair
         require(_value + _fee <= msg.value);
         require(_value * FEE_RATE / 100000000 <= _fee);
@@ -27,22 +25,14 @@ contract EtherCard is EtherCardBase {
         Card memory newCard = Card(msg.sender, _value, _fee, _claimKey, _retrievalKey, CardStatus.Waiting, 0);
         cards.push(newCard);
     }
-
-    // TODO: move require(_cardNumber < cards.length) to modifier
     
     /// @notice Cancel card and retrieve both it's value and fee
     /// (only card's creator can cancel).
     /// @param _cardNumber Number of a card to cancel
     /// @author Bulat Shamsutdinov (shamsfk)
-    function cancelCard(uint _cardNumber) public {
-        // Card number must be valid
-        require(_cardNumber < cards.length);
-        
-        require(msg.sender == cards[_cardNumber].creatorAddress);
-        
-        // TODO: return all the money to card's creator (including fee)
+    function cancelCard(uint _cardNumber) external onlyCreatorOf(_cardNumber) {        
+        // Return all the money to card's creator (including fee)
         cards[_cardNumber].creatorAddress.transfer(cards[_cardNumber].value + cards[_cardNumber].fee);
-        
         cards[_cardNumber].status = CardStatus.Chancelled;
     }
     
@@ -51,7 +41,7 @@ contract EtherCard is EtherCardBase {
     /// @param _cardNumber Number of a card to claim
     /// @param _claimKey Private Key to prove the right to claim
     /// @author Bulat Shamsutdinov (shamsfk)
-    function claimCard(uint _cardNumber, uint _claimKey) public {
+    function claimCard(uint _cardNumber, uint _claimKey) external {
         // Card number must be valid
         require(_cardNumber < cards.length);
         
@@ -69,7 +59,7 @@ contract EtherCard is EtherCardBase {
     /// @param _cardNumber Number of a card to check
     /// @return Returns true if msg.sender claimed the card and false otherwise
     /// @author Bulat Shamsutdinov (shamsfk)
-    function isCardClaimedByMe(uint _cardNumber) public view returns(bool) {
+    function isCardClaimedByMe(uint _cardNumber) external view returns(bool) {
         return (cards[_cardNumber].claimerAddress == msg.sender);
     }
     
@@ -80,14 +70,7 @@ contract EtherCard is EtherCardBase {
     /// @dev client app should check if card is controlled by the retriever
     /// using checkOwnership() before sending Retrival Key into the wild
     /// @author Bulat Shamsutdinov (shamsfk)
-    function retrieveCard(uint _cardNumber, uint _retrievalKey) public {
-        // Card number must be valid
-        require(_cardNumber < cards.length);
-        
-        // Card mast be controlled by the same person who tries to retrieve it
-        require(cards[_cardNumber].status == CardStatus.Claimed);
-        require(msg.sender == cards[_cardNumber].claimerAddress);
-        
+    function retrieveCard(uint _cardNumber, uint _retrievalKey) external onlyClaimerOf(_cardNumber) {        
         // TODO: Check if _retrievalKey is valid
         require(_retrievalKey == 0);
         

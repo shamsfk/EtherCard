@@ -24,15 +24,15 @@ var createTestCard = async () => {
     var value = web3.utils.toWei('1.0', 'ether');
     var fee = web3.utils.toWei('0.1', 'ether');
     var claimKey = web3.utils.sha3(web3.utils.toHex("10") + accounts[0], {encoding:"hex"});
-    var retrivalKey = web3.utils.sha3(web3.utils.toHex("200") + accounts[0], {encoding:"hex"});
+    var retrievalKey = web3.utils.sha3(web3.utils.toHex("200") + accounts[0], {encoding:"hex"});
 
-    await ethercard.methods.createCard(value, fee, claimKey, retrivalKey).send({
+    await ethercard.methods.createCard(value, fee, claimKey, retrievalKey).send({
         from: accounts[0],
         value: web3.utils.toWei(sendValue, 'ether'),
         gas: '1000000'
     });
 
-    return {value, fee, claimKey, retrivalKey};
+    return {value, fee, claimKey, retrievalKey};
 }
 
 describe('EtherCard Contract', () => {
@@ -69,7 +69,7 @@ describe('EtherCard Contract', () => {
     });
 
     it('allows card creation', async () => {
-        var {value, fee, claimKey, retrivalKey} = await createTestCard();
+        var {value, fee, claimKey, retrievalKey} = await createTestCard();
 
         const card = await ethercard.methods.cards(0).call({
             from: accounts[0]
@@ -80,7 +80,7 @@ describe('EtherCard Contract', () => {
         assert.equal(value, card.value);
         assert.equal(fee, card.fee);
         assert.equal(web3.utils.toHex(claimKey), web3.utils.toHex(card.publicClaimKey));
-        assert.equal(web3.utils.toHex(retrivalKey), web3.utils.toHex(card.publicRetrivalKey));
+        assert.equal(web3.utils.toHex(retrievalKey), web3.utils.toHex(card.publicRetrievalKey));
     });
 
     it('transfers value to the contract on card creation', async () => {
