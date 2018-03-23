@@ -38,7 +38,7 @@ contract EtherCard is EtherCardBase {
     /// (only card's creator can cancel).
     /// @param _cardNumber Number of a card to cancel
     /// @author Bulat Shamsutdinov (shamsfk)
-    function cancelCard(uint _cardNumber) external onlyCreatorOf(_cardNumber) {
+    function cancelCard(uint _cardNumber) external validCard(_cardNumber) onlyCreatorOf(_cardNumber) {
         // Return all the money to card's creator (including fee)
         cards[_cardNumber].creatorAddress.transfer(cards[_cardNumber].value + cards[_cardNumber].fee);
         cards[_cardNumber].status = CardStatus.Chancelled;
@@ -49,10 +49,7 @@ contract EtherCard is EtherCardBase {
     /// @param _cardNumber Number of a card to claim
     /// @param _claimKey Private Key to prove the right to claim
     /// @author Bulat Shamsutdinov (shamsfk)
-    function claimCard(uint _cardNumber, bytes32 _claimKey) external {
-        // Card number must be valid
-        require(_cardNumber < cards.length);
-
+    function claimCard(uint _cardNumber, bytes32 _claimKey) external validCard(_cardNumber) {
         // Card mast be in th waiting state
         require(cards[_cardNumber].status == CardStatus.Waiting);
 
@@ -67,7 +64,7 @@ contract EtherCard is EtherCardBase {
     /// @param _cardNumber Number of a card to check
     /// @return Returns true if msg.sender claimed the card and false otherwise
     /// @author Bulat Shamsutdinov (shamsfk)
-    function isCardClaimedByMe(uint _cardNumber) external view returns(bool) {
+    function isCardClaimedByMe(uint _cardNumber) external view validCard(_cardNumber) returns(bool) {
         return (cards[_cardNumber].claimerAddress == msg.sender);
     }
 
@@ -78,7 +75,7 @@ contract EtherCard is EtherCardBase {
     /// @dev client app should check if card is controlled by the retriever
     /// using checkOwnership() before sending Retrival Key into the wild
     /// @author Bulat Shamsutdinov (shamsfk)
-    function retrieveCard(uint _cardNumber, bytes32 _retrievalKey) external onlyClaimerOf(_cardNumber) {
+    function retrieveCard(uint _cardNumber, bytes32 _retrievalKey) external validCard(_cardNumber) onlyClaimerOf(_cardNumber) {
         // TODO: Check if _retrievalKey is valid
         require(keccak256(_retrievalKey) == cards[_cardNumber].publicRetrievalKey);
 

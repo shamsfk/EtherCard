@@ -47,22 +47,24 @@ contract EtherCardBase {
         feeAddress = msg.sender;
     }
 
+    modifier validCard(uint _cardNumber) {
+        // Card number must be valid
+        require(_cardNumber < cards.length);
+        _;
+    }
+
     modifier onlyManager() {
         require(msg.sender == manager);
         _;
     }
 
     modifier onlyCreatorOf(uint _cardNumber) {
-        // Card number must be valid
-        require(_cardNumber < cards.length);
         // Check ownership
         require(msg.sender == cards[_cardNumber].creatorAddress);
         _;
     }
 
     modifier onlyClaimerOf(uint _cardNumber) {
-        // Card number must be valid
-        require(_cardNumber < cards.length);
         // Check if card is claimed by sender
         require(cards[_cardNumber].status == CardStatus.Claimed);
         require(msg.sender == cards[_cardNumber].claimerAddress);
