@@ -4,7 +4,7 @@
   "description": "Ethereum based smart-contract for creating unpersonified cards with monetary value in ETH claimable by third party that is given special key by card's creator.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha \"ethereum/test/*.js\""
   },
   "repository": {
     "type": "git",
