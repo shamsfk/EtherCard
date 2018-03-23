@@ -7,8 +7,6 @@ The main purpose of EtherCard is to create a gift card with some amount of ether
 _Prepaid accounts can be and are used for the same purpose, the only value of EtherCard is in the retrieval process itself and a specific purpose of it which symbolizes a gift._
 
 ## How it works
-EtherCard Contract works in conjunction with EtherCard Client (https://github.com/shamsfk/EtherCardClient).
-
 1. Card's Creator specifies an amount of ether that will be attributed to the Card (Card's Value) and a special text message (Card's Text)
 2. Using random number generator, Creator's address, current time and SHA256 algorithm Client generates a pair of private keys:
     * Claiming Key
