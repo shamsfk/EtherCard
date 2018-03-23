@@ -214,6 +214,25 @@ describe('EtherCard Contract', () => {
             assert.equal(contractBalance, 0);
         });
 
+        it('forbids card retrieving for not a claimer', async () => {
+            var {value, fee, claimKey, retrievalKey} = await createTestCard();
+
+            await ethercard.methods.claimCard(0, claimKey).send({
+                from: accounts[1]
+            });
+
+            var error;
+            try {
+                await ethercard.methods.retrieveCard(0, retrievalKey).send({
+                    from: accounts[0]
+                });
+            }
+            catch (err) {
+                error = err;
+            }
+            assert.ok(error);
+        });
+
         it('transfers value on retrieving', async () => {
             var {value, fee, claimKey, retrievalKey} = await createTestCard();
 
