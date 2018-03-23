@@ -28,10 +28,10 @@ contract EtherCardBase {
         uint fee;
 
         // Key to check the validity of a Claim Key
-        uint publicClaimKey;
+        bytes32 publicClaimKey;
 
         // Key to check the validity of a Retrieval Key
-        uint publicRetrievalKey;
+        bytes32 publicRetrievalKey;
         
         // Defines status of a current Card
         CardStatus status;

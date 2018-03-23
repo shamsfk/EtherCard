@@ -16,7 +16,7 @@ contract EtherCard is EtherCardBase {
     /// @param _claimKey Public ClaimKey that will be used to check the validity of a private one
     /// @param _retrievalKey Public RetrievalKey that will be used to check the validity of a private one
     /// @author Bulat Shamsutdinov (shamsfk)
-    function createCard(uint _value, uint _fee, uint _claimKey, uint _retrievalKey) external payable {
+    function createCard(uint _value, uint _fee, bytes32 _claimKey, bytes32 _retrievalKey) external payable {
         // Check if fee is fair
         require(_value + _fee <= msg.value);
         require(_value * FEE_RATE / 100000000 <= _fee);
@@ -41,7 +41,7 @@ contract EtherCard is EtherCardBase {
     /// @param _cardNumber Number of a card to claim
     /// @param _claimKey Private Key to prove the right to claim
     /// @author Bulat Shamsutdinov (shamsfk)
-    function claimCard(uint _cardNumber, uint _claimKey) external {
+    function claimCard(uint _cardNumber, bytes32 _claimKey) external {
         // Card number must be valid
         require(_cardNumber < cards.length);
         
@@ -49,7 +49,7 @@ contract EtherCard is EtherCardBase {
         require(cards[_cardNumber].status == CardStatus.Waiting);
         
         // TODO: Check if _controlKey is valid
-        require(_claimKey == 0);
+        require(keccak256(_claimKey) == cards[_cardNumber].publicClaimKey);
         
         cards[_cardNumber].claimerAddress = msg.sender;
         cards[_cardNumber].status = CardStatus.Claimed;
@@ -70,7 +70,7 @@ contract EtherCard is EtherCardBase {
     /// @dev client app should check if card is controlled by the retriever
     /// using checkOwnership() before sending Retrival Key into the wild
     /// @author Bulat Shamsutdinov (shamsfk)
-    function retrieveCard(uint _cardNumber, uint _retrievalKey) external onlyClaimerOf(_cardNumber) {        
+    function retrieveCard(uint _cardNumber, bytes32 _retrievalKey) external onlyClaimerOf(_cardNumber) {        
         // TODO: Check if _retrievalKey is valid
         require(_retrievalKey == 0);
         

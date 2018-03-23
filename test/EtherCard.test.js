@@ -23,19 +23,30 @@ const sendValue = '1.1';
 var createTestCard = async () => {
     var value = web3.utils.toWei('1.0', 'ether');
     var fee = web3.utils.toWei('0.1', 'ether');
-    var claimKey = web3.utils.sha3(web3.utils.toHex("10") + accounts[0], {encoding:"hex"});
-    var retrievalKey = web3.utils.sha3(web3.utils.toHex("200") + accounts[0], {encoding:"hex"});
 
-    await ethercard.methods.createCard(value, fee, claimKey, retrievalKey).send({
+    // Pair of private keys sent to recipient
+    var claimKey = web3.utils.sha3(web3.utils.toHex("10"));
+    var retrievalKey = web3.utils.sha3(web3.utils.toHex("200"));
+
+    // Pair of public keys kept in contract
+    var publicClaimKey = web3.utils.sha3(claimKey, {encoding:"hex"});
+    var publicRetrievalKey = web3.utils.sha3(retrievalKey , {encoding:"hex"});
+
+    await ethercard.methods.createCard(value, fee, publicClaimKey, publicRetrievalKey).send({
         from: accounts[0],
         value: web3.utils.toWei(sendValue, 'ether'),
         gas: '1000000'
     });
 
-    return {value, fee, claimKey, retrievalKey};
+    return {value, fee, publicClaimKey, publicRetrievalKey, claimKey, retrievalKey};
 }
 
+///////////////////////////////////////////////////////////////////////////////////// TESTS:
+
 describe('EtherCard Contract', () => {
+
+/////////////////////////////////////////////////////////////// DEPLOYMENT & MANGAMENT
+
     it('deploys a contract', () => {
         assert.ok(ethercard.options.address);
     });
@@ -68,8 +79,10 @@ describe('EtherCard Contract', () => {
         assert.ok(error);
     });
 
+/////////////////////////////////////////////////////////////// CARD CREATION
+
     it('allows card creation', async () => {
-        var {value, fee, claimKey, retrievalKey} = await createTestCard();
+        var {value, fee, publicClaimKey, publicRetrievalKey} = await createTestCard();
 
         const card = await ethercard.methods.cards(0).call({
             from: accounts[0]
@@ -79,8 +92,8 @@ describe('EtherCard Contract', () => {
         assert.equal(accounts[0], card.creatorAddress);
         assert.equal(value, card.value);
         assert.equal(fee, card.fee);
-        assert.equal(web3.utils.toHex(claimKey), web3.utils.toHex(card.publicClaimKey));
-        assert.equal(web3.utils.toHex(retrievalKey), web3.utils.toHex(card.publicRetrievalKey));
+        assert.equal(web3.utils.toHex(publicClaimKey), web3.utils.toHex(card.publicClaimKey));
+        assert.equal(web3.utils.toHex(publicRetrievalKey), web3.utils.toHex(card.publicRetrievalKey));
     });
 
     it('transfers value to the contract on card creation', async () => {
@@ -89,6 +102,8 @@ describe('EtherCard Contract', () => {
         contractBalance = await web3.eth.getBalance(ethercard.options.address);
         assert.equal(contractBalance, web3.utils.toWei(sendValue, 'ether'));
     });
+
+/////////////////////////////////////////////////////////////// CARD CANCELATION
 
     it('allows creator to cancel card', async () => {
         await createTestCard();
@@ -105,10 +120,10 @@ describe('EtherCard Contract', () => {
     });
 
     it('forbids not a creator to cancel card', async () => {
+        await createTestCard();
+
         var error;
         try {
-            await createTestCard();
-
             await ethercard.methods.cancelCard(0).send({
                 from: accounts[1]
             });
@@ -137,4 +152,43 @@ describe('EtherCard Contract', () => {
         // creator's balance after cancelation must be bigger than before
         assert.ok(accountBalanceAfter > accountBalanceBefore);
     });
+
+/////////////////////////////////////////////////////////////// CARD CLAIMING
+
+    it('allows card claiming', async () => {
+        var {value, fee, claimKey} = await createTestCard();
+
+        await ethercard.methods.claimCard(0, claimKey).send({
+            from: accounts[1]
+        });
+
+        const card = await ethercard.methods.cards(0).call({
+            from: accounts[1]
+        });
+
+        assert.equal(card.status, 1);
+        assert.equal(card.claimerAddress, accounts[1]);
+    });
+
+    it('isCardClaimedByMe works as intended', async () => {
+        var {value, fee, claimKey} = await createTestCard();
+
+        await ethercard.methods.claimCard(0, claimKey).send({
+            from: accounts[1]
+        });
+
+        var isClaimed = await ethercard.methods.isCardClaimedByMe(0).call({
+            from: accounts[1]
+        });
+        assert.ok(isClaimed);
+
+        var isClaimed = await ethercard.methods.isCardClaimedByMe(0).call({
+            from: accounts[0]
+        });
+        assert.ok(!isClaimed);
+    });
+
+/////////////////////////////////////////////////////////////// CARD RETRIEVAL
+
+
 });
