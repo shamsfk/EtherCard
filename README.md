@@ -10,10 +10,10 @@ _Prepaid accounts can be and are used for the same purpose, the only value of Et
 EtherCard Contract works in conjunction with EtherCard Client (https://github.com/shamsfk/EtherCardClient).
 
 1. Card's Creator specifies an amount of ether that will be attributed to the Card (Card's Value) and a special text message (Card's Text)
-2. Using random.org, Creator's address, current time and SHA256 algorithm Client generates a pair of private keys:
+2. Using random number generator, Creator's address, current time and SHA256 algorithm Client generates a pair of private keys:
     * Claiming Key
     * Retrieval Key
-3. Using Claiming Key, Retrieval Key, Value, Creator's address and SHA256 algorithm Client generates a pair of public keys:
+3. Using Claiming Key, Retrieval Key and SHA256 algorithm Client generates a pair of public keys:
     * Public Claiming Key
     * Public Retrieval Key
 4. An Amount, FeeAmount*, PublicClaimingKey, PublicRetrievalKey, Card's Text and Creator's Address forms the Card

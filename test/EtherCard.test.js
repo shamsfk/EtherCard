@@ -46,149 +46,211 @@ var createTestCard = async () => {
 describe('EtherCard Contract', () => {
 
 /////////////////////////////////////////////////////////////// DEPLOYMENT & MANGAMENT
-
-    it('deploys a contract', () => {
-        assert.ok(ethercard.options.address);
-    });
-
-    it('allows manager to change fee address', async () => {
-        await ethercard.methods.changeFeeAddress(accounts[1]).send({
-          from: accounts[0],
+    describe('- deployment and management', () => {
+        it('deploys a contract', () => {
+            assert.ok(ethercard.options.address);
         });
 
-        const feeAddress = await ethercard.methods.feeAddress().call({
-            from: accounts[0]
+        it('allows manager to change fee address', async () => {
+            await ethercard.methods.changeFeeAddress(accounts[1]).send({
+            from: accounts[0],
+            });
+
+            const feeAddress = await ethercard.methods.feeAddress().call({
+                from: accounts[0]
+            });
+
+            assert.equal(accounts[1], feeAddress);
         });
 
-        assert.equal(accounts[1], feeAddress);
-    });
-
-    it('forbids not a manager to change fee address', async () => {
-        var error;
-        try {
-            await ethercard.methods.changeFeeAddress(accounts[2]).send({
-                from: accounts[1],
-            });
-            await ethercard.methods.changeFeeAddress(accounts[0]).send({
-                from: accounts[1],
-            });
-        }
-        catch(err) {
-            error = err;
-        }
-        assert.ok(error);
+        it('forbids not a manager to change fee address', async () => {
+            var error;
+            try {
+                await ethercard.methods.changeFeeAddress(accounts[2]).send({
+                    from: accounts[1],
+                });
+                await ethercard.methods.changeFeeAddress(accounts[0]).send({
+                    from: accounts[1],
+                });
+            }
+            catch(err) {
+                error = err;
+            }
+            assert.ok(error);
+        });
     });
 
 /////////////////////////////////////////////////////////////// CARD CREATION
+    describe('- card creation', () => {
+        it('allows card creation', async () => {
+            var {value, fee, publicClaimKey, publicRetrievalKey} = await createTestCard();
 
-    it('allows card creation', async () => {
-        var {value, fee, publicClaimKey, publicRetrievalKey} = await createTestCard();
+            const card = await ethercard.methods.cards(0).call({
+                from: accounts[0]
+            });
 
-        const card = await ethercard.methods.cards(0).call({
-            from: accounts[0]
+            assert.ok(card);
+            assert.equal(accounts[0], card.creatorAddress);
+            assert.equal(value, card.value);
+            assert.equal(fee, card.fee);
+            assert.equal(web3.utils.toHex(publicClaimKey), web3.utils.toHex(card.publicClaimKey));
+            assert.equal(web3.utils.toHex(publicRetrievalKey), web3.utils.toHex(card.publicRetrievalKey));
         });
 
-        assert.ok(card);
-        assert.equal(accounts[0], card.creatorAddress);
-        assert.equal(value, card.value);
-        assert.equal(fee, card.fee);
-        assert.equal(web3.utils.toHex(publicClaimKey), web3.utils.toHex(card.publicClaimKey));
-        assert.equal(web3.utils.toHex(publicRetrievalKey), web3.utils.toHex(card.publicRetrievalKey));
-    });
+        it('transfers value to the contract on card creation', async () => {
+            var {value, fee} = await createTestCard();
 
-    it('transfers value to the contract on card creation', async () => {
-        var {value, fee} = await createTestCard();
-
-        contractBalance = await web3.eth.getBalance(ethercard.options.address);
-        assert.equal(contractBalance, web3.utils.toWei(sendValue, 'ether'));
+            contractBalance = await web3.eth.getBalance(ethercard.options.address);
+            assert.equal(contractBalance, web3.utils.toWei(sendValue, 'ether'));
+        });
     });
 
 /////////////////////////////////////////////////////////////// CARD CANCELATION
+    describe('- card cancelation', () => {
+        it('allows creator to cancel card', async () => {
+            await createTestCard();
 
-    it('allows creator to cancel card', async () => {
-        await createTestCard();
-
-        await ethercard.methods.cancelCard(0).send({
-            from: accounts[0]
-        });
-
-        var card = await ethercard.methods.cards(0).call({
-            from: accounts[0]
-        });
-
-        assert.equal(card.status, 3);
-    });
-
-    it('forbids not a creator to cancel card', async () => {
-        await createTestCard();
-
-        var error;
-        try {
             await ethercard.methods.cancelCard(0).send({
+                from: accounts[0]
+            });
+
+            var card = await ethercard.methods.cards(0).call({
+                from: accounts[0]
+            });
+
+            assert.equal(card.status, 3);
+        });
+
+        it('forbids not a creator to cancel card', async () => {
+            await createTestCard();
+
+            var error;
+            try {
+                await ethercard.methods.cancelCard(0).send({
+                    from: accounts[1]
+                });
+            }
+            catch(err) {
+                error = err;
+            }
+            assert.ok(error);
+        });
+
+        it('sends funds back when card is canceled', async () => {
+            await createTestCard();
+
+            var accountBalanceBefore = await web3.eth.getBalance(accounts[0]);
+
+            await ethercard.methods.cancelCard(0).send({
+                from: accounts[0]
+            });
+
+            // contract should have no ether
+            var contractBalance = await web3.eth.getBalance(ethercard.options.address);
+            assert.equal(contractBalance, 0);
+
+            var accountBalanceAfter = await web3.eth.getBalance(accounts[0]);
+
+            // creator's balance after cancelation must be bigger than before
+            assert.ok(accountBalanceAfter > accountBalanceBefore);
+        });
+    });
+/////////////////////////////////////////////////////////////// CARD CLAIMING
+    describe('- card claiming', () => {
+        it('allows card claiming', async () => {
+            var {value, fee, claimKey} = await createTestCard();
+
+            await ethercard.methods.claimCard(0, claimKey).send({
                 from: accounts[1]
             });
-        }
-        catch(err) {
-            error = err;
-        }
-        assert.ok(error);
+
+            const card = await ethercard.methods.cards(0).call({
+                from: accounts[1]
+            });
+
+            assert.equal(card.status, 1);
+            assert.equal(card.claimerAddress, accounts[1]);
+        });
+
+        it('isCardClaimedByMe works as intended', async () => {
+            var {value, fee, claimKey} = await createTestCard();
+
+            await ethercard.methods.claimCard(0, claimKey).send({
+                from: accounts[1]
+            });
+
+            var isClaimed = await ethercard.methods.isCardClaimedByMe(0).call({
+                from: accounts[1]
+            });
+            assert.ok(isClaimed);
+
+            var isClaimed = await ethercard.methods.isCardClaimedByMe(0).call({
+                from: accounts[0]
+            });
+            assert.ok(!isClaimed);
+        });
     });
-
-    it('sends funds back when card is canceled', async () => {
-        await createTestCard();
-
-        var accountBalanceBefore = await web3.eth.getBalance(accounts[0]);
-
-        await ethercard.methods.cancelCard(0).send({
-            from: accounts[0]
-        });
-
-        // contract should have no ether
-        var contractBalance = await web3.eth.getBalance(ethercard.options.address);
-        assert.equal(contractBalance, 0);
-
-        var accountBalanceAfter = await web3.eth.getBalance(accounts[0]);
-
-        // creator's balance after cancelation must be bigger than before
-        assert.ok(accountBalanceAfter > accountBalanceBefore);
-    });
-
-/////////////////////////////////////////////////////////////// CARD CLAIMING
-
-    it('allows card claiming', async () => {
-        var {value, fee, claimKey} = await createTestCard();
-
-        await ethercard.methods.claimCard(0, claimKey).send({
-            from: accounts[1]
-        });
-
-        const card = await ethercard.methods.cards(0).call({
-            from: accounts[1]
-        });
-
-        assert.equal(card.status, 1);
-        assert.equal(card.claimerAddress, accounts[1]);
-    });
-
-    it('isCardClaimedByMe works as intended', async () => {
-        var {value, fee, claimKey} = await createTestCard();
-
-        await ethercard.methods.claimCard(0, claimKey).send({
-            from: accounts[1]
-        });
-
-        var isClaimed = await ethercard.methods.isCardClaimedByMe(0).call({
-            from: accounts[1]
-        });
-        assert.ok(isClaimed);
-
-        var isClaimed = await ethercard.methods.isCardClaimedByMe(0).call({
-            from: accounts[0]
-        });
-        assert.ok(!isClaimed);
-    });
-
 /////////////////////////////////////////////////////////////// CARD RETRIEVAL
+    describe('- card retrieval', () => {
+        it('allows card retrieving', async () => {
+            var {value, fee, claimKey, retrievalKey} = await createTestCard();
 
+            await ethercard.methods.claimCard(0, claimKey).send({
+                from: accounts[1]
+            });
 
+            await ethercard.methods.retrieveCard(0, retrievalKey).send({
+                from: accounts[1]
+            });
+
+            const card = await ethercard.methods.cards(0).call({
+                from: accounts[1]
+            });
+
+            assert.equal(card.status, 2);
+
+            // contract should have no ether
+            var contractBalance = await web3.eth.getBalance(ethercard.options.address);
+            assert.equal(contractBalance, 0);
+        });
+
+        it('transfers value on retrieving', async () => {
+            var {value, fee, claimKey, retrievalKey} = await createTestCard();
+
+            await ethercard.methods.claimCard(0, claimKey).send({
+                from: accounts[1]
+            });
+
+            var accountBalanceBefore = await web3.eth.getBalance(accounts[1]);
+
+            await ethercard.methods.retrieveCard(0, retrievalKey).send({
+                from: accounts[1]
+            });
+
+            var accountBalanceAfter = await web3.eth.getBalance(accounts[1]);
+
+            // creator's balance after cancelation must be bigger than before
+            assert.ok(accountBalanceAfter > accountBalanceBefore);
+        });
+
+        it('transfers fee on retrieving', async () => {
+            var {value, fee, claimKey, retrievalKey} = await createTestCard();
+
+            await ethercard.methods.claimCard(0, claimKey).send({
+                from: accounts[1]
+            });
+
+            var accountBalanceBefore = await web3.eth.getBalance(accounts[0]);
+
+            await ethercard.methods.retrieveCard(0, retrievalKey).send({
+                from: accounts[1]
+            });
+
+            var accountBalanceAfter = await web3.eth.getBalance(accounts[0]);
+
+            // fee balance after cancelation must be bigger than before
+            assert.ok(accountBalanceAfter > accountBalanceBefore);
+        });
+    });
+/////////////////////////////////////////////////////////////// 
 });

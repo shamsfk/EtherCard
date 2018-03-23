@@ -72,7 +72,7 @@ contract EtherCard is EtherCardBase {
     /// @author Bulat Shamsutdinov (shamsfk)
     function retrieveCard(uint _cardNumber, bytes32 _retrievalKey) external onlyClaimerOf(_cardNumber) {        
         // TODO: Check if _retrievalKey is valid
-        require(_retrievalKey == 0);
+        require(keccak256(_retrievalKey) == cards[_cardNumber].publicRetrievalKey);
         
         // Transfer value to claimerAddress
         cards[_cardNumber].claimerAddress.transfer(cards[_cardNumber].value);
