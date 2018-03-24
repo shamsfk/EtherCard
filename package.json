@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server",
     "test": "npm run test:eth",
-    "test:eth": "node \"ethereum/compile.js\" && mocha \"ethereum/test/*.js\""
+    "test:eth": "node \"ethereum/compile.js\" && mocha \"ethereum/test/*.js\"",
+    "test:eth:noc": "mocha \"ethereum/test/*.js\""
   },
   "repository": {
     "type": "git",

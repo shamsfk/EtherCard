@@ -268,4 +268,5 @@ describe('EtherCard Contract', () => {
     })
   })
 /// ////////////////////////////////////////////////////////////
+// TODO: add end to end test
 })
