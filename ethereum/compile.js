@@ -28,7 +28,11 @@ function findImports (pathName) {
 }
 
 const source = findContract('EtherCard.sol')
-const output = solc.compile({sources: {'EtherCard.sol': source}}, 1, findImports).contracts
+const output = solc.compile({
+  sources: {
+    'EtherCard.sol': source
+  }
+}, 1, findImports).contracts
 
 const buildPath = path.resolve(__dirname, 'build')
 fs.removeSync(buildPath)
