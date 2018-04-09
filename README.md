@@ -1,5 +1,5 @@
 # EtherCard
-Ethereum contract to create and share unpersonified gift cards available at https://ether-card.com
+Ethereum contract to create and share unpersonified gift cards that will someday be available at https://ether-card.com
 
 ## What is it for
 The main purpose of EtherCard is to create a gift card with some amount of ether to be given to somebody you don't want to ask for their address beforehand or you would like to surprise by presenting a card at some exact moment.
